@@ -1,0 +1,33 @@
+{% extends "bugz/base.html" %}
+{% load bugz %}
+{% block title %}Tickets{% endblock %}
+
+{% block content %}
+    <h1>Tickets</h1>
+
+    <form method="get">
+        {{ form.q }}
+        <button type="submit">Search</button>
+    </form>
+
+    <div class="ticket-list">
+    {% for ticket in tickets %}
+        <div class="ticket">
+            {# Insert multi-select checkbox here. #}
+            <div class="ticket-status">{# Insert open/closed icon here. #}</div>
+            <div class="ticket-title">
+                <a href="{% url 'bugz:ticket' ticket.pk %}">{{ ticket.title }}</a>
+                <div class="ticket-info">
+                    #{{ ticket.id }} opened {{ ticket.created_on|date:"SHORT_DATETIME_FORMAT" }} by {% show_author ticket.authored_by %}
+                </div>
+            </div>
+            <div class="ticket-meta">
+                <div class="ticket-assignee">
+                    {% with assignee=ticket.assignee %}{% include "bugz/stub-assignee.html" %}{% endwith %}
+                </div>
+                <div class="ticket-stats"></div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,28 @@
+name: test
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    name: "Test on Python ${{ matrix.python-version }}"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install -U pip poetry
+          poetry install
+          poetry run python -V
+      - name: Test bugz
+        run: >
+          DJANGO_SETTINGS_MODULE=tests.settings
+          poetry run
+          python manage.py test

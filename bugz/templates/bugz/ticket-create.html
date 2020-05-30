@@ -1,0 +1,12 @@
+{% extends "bugz/base.html" %}
+
+{% block title %}Create a new ticket{% endblock %}
+
+{% block content %}
+    <h1>Create a new ticket</h1>
+
+    <form method="post">
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+{% endblock %}

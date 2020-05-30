@@ -1,0 +1,6 @@
+{% load bugz %}
+{% if assignee %}
+<div class="bugz-user bugz-assignee" title="Assigned to {{ assignee.username }}" style="background-color: {{ assignee|hashed_color }}">
+    {{ assignee.username|slice:'1'|upper }}
+</div>
+{% endif %}

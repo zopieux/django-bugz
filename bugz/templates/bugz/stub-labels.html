@@ -1,0 +1,4 @@
+{% load bugz %}
+{% for label in labels %}
+    <a class="bugz-label-link" href="{% search_url 'label' label.name %}">{{ label.name }}</a>{% if not forloop.last %},{% endif %}
+{% endfor %}

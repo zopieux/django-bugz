@@ -1,0 +1,3 @@
+{% for ticket in tickets %}
+    <a class="bugz-ticket-link" href="{% url 'bugz:ticket' ticket.pk %}">#{{ ticket.pk }}</a>{% if not forloop.last %},{% endif %}
+{% endfor %}

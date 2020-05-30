@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    <style>
+        body {
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+{% block logged-user %}
+{% if user.is_authenticated %}
+    <p>Logged in as <strong>{{ user }}</strong>.</p>
+{% endif %}
+{% endblock %}
+
+{% block navigation %}
+<nav>
+    <a href="{% url 'bugz:home' %}">Ticket list</a>
+    <a href="{% url 'bugz:new' %}">New ticket</a>
+</nav>
+{% endblock %}
+
+{% block content %}
+{% endblock %}
+
+</body>
+</html>
