@@ -9,4 +9,5 @@ urlpatterns = [
     path("new", views.CreateTicketView.as_view(), name="new"),
     path("ticket/<int:pk>", views.DetailTicketView.as_view(), name="ticket"),
     path("ticket/<int:pk>/comment", views.CommentTicketView.as_view(), name="comment"),
+    path("js/labels", views.JSLabelView.as_view(), name="js.labels"),
 ]

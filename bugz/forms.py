@@ -15,5 +15,5 @@ class SearchForm(forms.Form):
     q = forms.CharField(initial="")
 
     def apply_qs(self, qs):
-        q = self.cleaned_data["q"]
+        q = self.cleaned_data.get("q", "")
         return qs

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,6 +9,8 @@
             font-family: sans-serif;
         }
     </style>
+    <link rel="stylesheet" href="{% static 'bugz/sakura.css' %}">
+    {% block head %}{% endblock %}
 </head>
 <body>
 
@@ -19,7 +22,7 @@
 
 {% block navigation %}
 <nav>
-    <a href="{% url 'bugz:home' %}">Ticket list</a>
+    <a href="{% url 'bugz:home' %}">Ticket list</a> ⋅
     <a href="{% url 'bugz:new' %}">New ticket</a>
 </nav>
 {% endblock %}
@@ -27,5 +30,6 @@
 {% block content %}
 {% endblock %}
 
+{% block foot %}{% endblock %}
 </body>
 </html>

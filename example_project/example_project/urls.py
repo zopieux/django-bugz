@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -9,5 +9,9 @@ urlpatterns = [
 
 if settings.DEBUG:
     import debug_toolbar
+    import django.contrib.staticfiles.views
 
-    urlpatterns.insert(0, path("__debug__/", include(debug_toolbar.urls)))
+    urlpatterns.extend([
+        path("__debug__/", include(debug_toolbar.urls)),
+        re_path(r'^static/(?P<path>.*)$',  django.contrib.staticfiles.views.serve),
+    ])

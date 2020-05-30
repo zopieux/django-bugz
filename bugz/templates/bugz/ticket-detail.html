@@ -1,85 +1,105 @@
 {% extends "bugz/base.html" %}
+{% load static %}
 {% load bugz %}
+
+{% block head %}
+<script src="{% static 'bugz/bundle.js' %}"></script>
+{% endblock %}
+
+{% block foot %}
+<script>
+  (function() {
+    window.bugz.labels({
+      url: "{% url 'bugz:js.labels' %}",
+      element: document.getElementById('bugz-tags'),
+    });
+  })()
+</script>
+{% endblock %}
 
 {% block title %}{{ ticket.title }} ⋅ Issue #{{ ticket.pk }}{% endblock %}
 
 {% block content %}
-    <h1>{{ ticket.title }}</h1>
+<h1>{{ ticket.title }}</h1>
 
-    <section class="bugz-description">
-        {{ ticket.description|markdown }}
-    </section>
+<section class="bugz-description">
+    {{ ticket.description|markdown }}
+</section>
 
-    {% for event in log %}
-        {% if event.field == "comment" %}
-    <section class="bugz-comment" id="{{ event.pk }}">
-        <div class="bugz-comment-header">
-            <div class="bugz-user bugz-author">{{ event.authored_by.username }}</div>
-            commented
-            <a class="bugz-timestamp" href="#{{ event.pk }}">on {{ event.authored_on|date:"SHORT_DATETIME_FORMAT" }}</a>
-        </div>
-        <div class="bugz-comment-body markup">
-            {{ event.new_value|markdown }}
-        </div>
-    </section>
-        {% else %}
-    <section class="bugz-update" id="{{ event.pk }}">
-        <div class="bugz-user-link bugz-author">{{ event.authored_by.username }}</div>
-        <div class="bugz-event-description">
-            {% if event.field == "title" %}
-                updated ticket title:
-                <span class="bugz-old-value">{{ event.old_value }}</span>
-                → <span class="bugz-new-value">{{ event.new_value }}</span>
-            {% elif event.field == "open" %}
-                {% if event.new_value == False %}
-                    closed this
-                {% else %}
-                    reopened this
-                {% endif %}
-            {% elif event.field == "locked" %}
-                {% if event.new_value == True %}
-                    limited changes to staff users
-                {% else %}
-                    unlocked this
-                {% endif %}
-            {% elif event.field == "assignee" %}
-                {% if event.new_value %}
-                    assigned this to {% show_assignee event.new_value %}
-                {% else %}
-                    unassigned this from {% show_assignee event.old_value %}
-                {% endif %}
-            {% elif event.field == "dupe_of" %}
-                {% if event.new_value %}
-                    marked this as a duplicate of {% show_tickets event.new_value %}
-                {% else %}
-                    removed {% show_tickets event.old_value %} as duplicate of this
-                {% endif %}
-            {% elif event.field == "blocked_by" %}
-                 {% if event.new_value %}
-                     added tickets {% show_tickets event.new_value %}
-                     as blocking this
-                {% else %}
-                     removed tickets {% show_tickets event.old_value %}
-                     as blocking this
-                {% endif %}
-            {% elif event.field == "labels" %}
-                 {% if event.new_value %}
-                     added the {% show_labels event.new_value %} labels
-                {% else %}
-                     removed the {% show_labels event.old_value %} labels
-                {% endif %}
-            {% else %}
-                <!-- UNSUPPORTED EVENT TYPE {{ event.field }} -->
-            {% endif %}
-        </div>
+{% for event in log %}
+    {% if event.field == "comment" %}
+<section class="bugz-comment" id="{{ event.pk }}">
+    <div class="bugz-comment-header">
+        <div class="bugz-user bugz-author">{{ event.authored_by.username }}</div>
+        commented
         <a class="bugz-timestamp" href="#{{ event.pk }}">on {{ event.authored_on|date:"SHORT_DATETIME_FORMAT" }}</a>
-    </section>
+    </div>
+    <div class="bugz-comment-body markup">
+        {{ event.new_value|markdown }}
+    </div>
+</section>
+    {% else %}
+<section class="bugz-update" id="{{ event.pk }}">
+    <div class="bugz-user-link bugz-author">{{ event.authored_by.username }}</div>
+    <div class="bugz-event-description">
+        {% if event.field == "title" %}
+            updated ticket title:
+            <span class="bugz-old-value">{{ event.old_value }}</span>
+            → <span class="bugz-new-value">{{ event.new_value }}</span>
+        {% elif event.field == "open" %}
+            {% if event.new_value == False %}
+                closed this
+            {% else %}
+                reopened this
+            {% endif %}
+        {% elif event.field == "locked" %}
+            {% if event.new_value == True %}
+                limited changes to staff users
+            {% else %}
+                unlocked this
+            {% endif %}
+        {% elif event.field == "assignee" %}
+            {% if event.new_value %}
+                assigned this to {% show_assignee event.new_value %}
+            {% else %}
+                unassigned this from {% show_assignee event.old_value %}
+            {% endif %}
+        {% elif event.field == "dupe_of" %}
+            {% if event.new_value %}
+                marked this as a duplicate of {% show_tickets event.new_value %}
+            {% else %}
+                removed {% show_tickets event.old_value %} as duplicate of this
+            {% endif %}
+        {% elif event.field == "blocked_by" %}
+             {% if event.new_value %}
+                 added tickets {% show_tickets event.new_value %}
+                 as blocking this
+            {% else %}
+                 removed tickets {% show_tickets event.old_value %}
+                 as blocking this
+            {% endif %}
+        {% elif event.field == "labels" %}
+             {% if event.new_value %}
+                 added the {% show_labels event.new_value %} labels
+            {% else %}
+                 removed the {% show_labels event.old_value %} labels
+            {% endif %}
+        {% else %}
+            <!-- UNSUPPORTED EVENT TYPE {{ event.field }} -->
         {% endif %}
-    {% endfor %}
+    </div>
+    <a class="bugz-timestamp" href="#{{ event.pk }}">on {{ event.authored_on|date:"SHORT_DATETIME_FORMAT" }}</a>
+</section>
+    {% endif %}
+{% endfor %}
 
-    <form action="{% url 'bugz:comment' ticket.pk %}" method="post" class="bugz-comment-form">
-        {{ form.comment }}
-        {% csrf_token %}
-        <button type="submit">Comment</button>
-    </form>
+<div id="bugz-tags"
+     data-ticket="{{ ticket.pk }}"
+     data-labels="{% for label in ticket.labels.all %}{{ label.pk }},{% endfor %}"></div>
+
+<form action="{% url 'bugz:comment' ticket.pk %}" method="post" class="bugz-comment-form">
+    {{ form.comment }}
+    {% csrf_token %}
+    <button type="submit">Comment</button>
+</form>
 {% endblock %}

@@ -1,5 +1,9 @@
-from django.http import JsonResponse
-from django.shortcuts import redirect
+import json
+
+from django.http import JsonResponse, HttpResponse
+from django.shortcuts import redirect, get_object_or_404
+from django.views import View
+from django.views.decorators.csrf import requires_csrf_token
 from django.views.generic import ListView, CreateView, DetailView
 from django.views.generic.edit import (
     BaseUpdateView,
@@ -45,7 +49,7 @@ class CreateLabelView(PermissionRequiredMixin, CreateView):
 class CreateTicketView(PermissionRequiredMixin, CreateView):
     template_name = "bugz/ticket-create.html"
     model = models.Ticket
-    fields = ("title", "description", "assignee", "blocked_by", "dupe_of", "labels")
+    fields = ("title", "description")
     permission_required = "bugz.can_create_ticket"
 
 
@@ -93,3 +97,47 @@ class UpdateTicketView(PermissionRequiredMixin, UpdateView):
         "labels",
         "locked",
     )
+
+
+class JsonBodyMixin:
+    def dispatch(self, request, *args, **kwargs):
+        if request.method == "POST":
+            self.request_json = self.get_request_json()
+
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_request_json(self):
+        try:
+            return json.loads(self.request.body.decode())
+        except:
+            return None
+
+
+class JSLabelView(JsonBodyMixin, PermissionRequiredMixin, View):
+    def get_permission_required(self):
+        if self.request.method == "GET":
+            return "bugz.can_list_labels"
+        else:
+            return "bugz.can_edit_ticket"
+
+    def get_permission_object(self):
+        if self.request.method == "POST":
+            return self.get_object()
+
+    def get_object(self):
+        pk = self.request_json["ticket"]
+        return get_object_or_404(models.Ticket, pk=pk)
+
+    def get(self, request, *args, **kwargs):
+        labels = [
+            dict(pk=label.pk, name=label.name, color=label.color)
+            for label in models.Label.objects.all()
+        ]
+        return JsonResponse(labels, safe=False)
+
+    def post(self, request, *args, **kwargs):
+        ticket = self.get_object()
+        models.save_ticket_update(
+            ticket, self.request.user, labels=self.request_json["labels"]
+        )
+        return HttpResponse(status=204)
