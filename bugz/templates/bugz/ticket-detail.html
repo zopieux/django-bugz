@@ -28,18 +28,18 @@
 
 {% for event in log %}
     {% if event.field == "comment" %}
-<section class="bugz-comment" id="{{ event.pk }}">
+<section class="bugz-comment" id="{{ event.id }}">
     <div class="bugz-comment-header">
         <div class="bugz-user bugz-author">{{ event.authored_by.username }}</div>
         commented
-        <a class="bugz-timestamp" href="#{{ event.pk }}">on {{ event.authored_on|date:"SHORT_DATETIME_FORMAT" }}</a>
+        <a class="bugz-timestamp" href="#{{ event.id }}">on {{ event.authored_on|date:"SHORT_DATETIME_FORMAT" }}</a>
     </div>
     <div class="bugz-comment-body markup">
         {{ event.new_value|markdown }}
     </div>
 </section>
     {% else %}
-<section class="bugz-update" id="{{ event.pk }}">
+<section class="bugz-update" id="{{ event.id }}">
     <div class="bugz-user-link bugz-author">{{ event.authored_by.username }}</div>
     <div class="bugz-event-description">
         {% if event.field == "title" %}
@@ -84,11 +84,13 @@
             {% else %}
                  removed the {% show_labels event.old_value %} labels
             {% endif %}
+        {% elif event.field == "description" %}
+            {# Description updates are noisy. #}
         {% else %}
             <!-- UNSUPPORTED EVENT TYPE {{ event.field }} -->
         {% endif %}
     </div>
-    <a class="bugz-timestamp" href="#{{ event.pk }}">on {{ event.authored_on|date:"SHORT_DATETIME_FORMAT" }}</a>
+    <a class="bugz-timestamp" href="#{{ event.id }}">on {{ event.authored_on|date:"SHORT_DATETIME_FORMAT" }}</a>
 </section>
     {% endif %}
 {% endfor %}

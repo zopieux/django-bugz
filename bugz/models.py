@@ -167,7 +167,9 @@ def save_ticket_update(ticket: Ticket, authored_by, blocked_by=None, labels=None
 
 
 class Event(NamedTuple):
-    pk: str
+    """Represents a ticket update, including comments."""
+
+    id: str
     authored_by: settings.AUTH_USER_MODEL
     authored_on: datetime.datetime
     field: str
@@ -176,7 +178,13 @@ class Event(NamedTuple):
 
 
 def build_ticket_log(ticket: Ticket):
-    def build_lookup_qs(qs, pks):
+    """Generate Event tuples for each comment and field update for this ticket.
+
+    Most recent update comes first."""
+
+    def build_lookup_dict(qs, pks):
+        if not pks:
+            return {}
         return {inst.pk: inst for inst in qs.filter(pk__in=pks)}
 
     updates = (
@@ -196,19 +204,30 @@ def build_ticket_log(ticket: Ticket):
         "blocked_by": set(ticket.blocked_by.values_list("pk", flat=True)),
     }
 
-    field_updates = [json.loads(u.old_value) if u.old_value else None for u in updates]
-    only_updates = [fu for fu in field_updates if fu is not None]
-    users = {fu.get("assignee") for fu in only_updates}
-    users |= {current_state["assignee"]}
-    tickets = {fu.get("dupe_of") for fu in only_updates}
-    tickets |= {pk for fu in only_updates for pk in fu.get("blocked_by", [])}
-    tickets |= current_state["blocked_by"] | {current_state["dupe_of"]}
-    labels = {pk for fu in only_updates for pk in fu.get("labels", [])}
-    labels |= current_state["labels"]
-
-    users = build_lookup_qs(get_user_model().objects, users)
-    tickets = build_lookup_qs(Ticket.objects.select_related("authored_by"), tickets)
-    labels = build_lookup_qs(Label.objects, labels)
+    # List of decoded old values (or None if comment). Same length as updates.
+    decoded_old_values = [
+        json.loads(u.old_value) if u.old_value else None for u in updates
+    ]
+    # Only the field updates, without comments.
+    old_fields = [fu for fu in decoded_old_values if fu is not None]
+    # Let's gather IDs of related models.
+    users = (
+        {fu.get("assignee") for fu in old_fields} | {current_state["assignee"]}
+    ) - {None}
+    tickets = (
+        {fu.get("dupe_of") for fu in old_fields}
+        | {pk for fu in old_fields for pk in fu.get("blocked_by", [])}
+        | current_state["blocked_by"]
+        | {current_state["dupe_of"]}
+    ) - {None}
+    labels = (
+        {pk for fu in old_fields for pk in fu.get("labels", [])}
+        | current_state["labels"]
+    ) - {None}
+    # And build lookup tables for these.
+    users = build_lookup_dict(get_user_model().objects, users)
+    tickets = build_lookup_dict(Ticket.objects.select_related("authored_by"), tickets)
+    labels = build_lookup_dict(Label.objects, labels)
 
     def emit(old, new, many: bool, lookup=None):
         deleted = object()
@@ -236,11 +255,11 @@ def build_ticket_log(ticket: Ticket):
             if old is not deleted and new is not deleted:
                 yield old, new
 
-    for update, field_updates in zip(updates, field_updates):
+    for update, old_value in zip(updates, decoded_old_values):
         # Just a comment.
-        if field_updates is None:
+        if old_value is None:
             yield Event(
-                pk=f"comment-{update.pk}",
+                id=f"comment-{update.pk}",
                 authored_by=update.authored_by,
                 authored_on=update.authored_on,
                 field="comment",
@@ -249,7 +268,7 @@ def build_ticket_log(ticket: Ticket):
             continue
 
         # Field updates.
-        for field, old in field_updates.items():
+        for field, old in old_value.items():
             new = current_state[field]
             if field == "assignee":
                 changes = emit(old, new, many=False, lookup=users)
@@ -259,16 +278,13 @@ def build_ticket_log(ticket: Ticket):
                 changes = emit(old, new, many=True, lookup=labels)
             elif field == "blocked_by":
                 changes = emit(old, new, many=True, lookup=tickets)
-            elif field == "description":
-                # Don't emit log for description changes.
-                continue
             else:
                 changes = emit(old, new, many=False)
 
             for old_v, new_v in changes:
-                h = hashlib.md5(repr((old_v, new_v)).encode()).hexdigest()[:4]
+                h = hashlib.md5(repr((field, old_v, new_v)).encode()).hexdigest()[:4]
                 yield Event(
-                    pk=f"event-{update.pk}{h}",
+                    id=f"event-{update.pk}-{h}",
                     authored_by=update.authored_by,
                     authored_on=update.authored_on,
                     field=field,
