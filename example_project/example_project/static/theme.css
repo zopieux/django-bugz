@@ -1,0 +1,268 @@
+body {
+    max-width: 760px;
+    margin: 1rem auto;
+    font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji;
+}
+
+h1 {
+    margin: 1rem 0;
+    padding: 0;
+}
+
+.bugz-ticket-list {
+    border: 1px solid #e1e4e8;
+}
+
+.bugz-ticket {
+    display: flex;
+    position: relative;
+    flex-direction: row;
+    padding: 8px;
+}
+
+.bugz-ticket:hover {
+    background-color: #f6f8fa;
+}
+
+.bugz-ticket:not(:last-child) {
+    border-bottom: 1px solid #e1e4e8;
+}
+
+.bugz-ticket-status {
+    flex-shrink: 0;
+    padding-top: 3px;
+    padding-right: 8px;
+}
+
+.bugz-ticket-title {
+    flex: auto;
+    line-height: 1.25;
+    min-width: 0;
+}
+
+.bugz-ticket-title-link {
+    color: inherit;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.bugz-ticket-meta {
+    align-self: flex-end;
+    flex-shrink: 0;
+}
+
+.bugz-ticket-info {
+    font-size: small;
+    color: #6a737d;
+    margin-top: 4px;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #0366d6;
+}
+
+.bugz-assignee-icon {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-radius: 11px;
+    text-align: center;
+    font-size: small;
+    line-height: 1.5;
+}
+
+.bugz-ticket-status-icon-open, .bugz-ticket-status-icon-closed {
+    content: " ";
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+}
+
+.bugz-ticket-status-icon-open {
+    background-color: #28a745;
+}
+
+.bugz-ticket-status-icon-closed {
+    background-color: #cb2431;
+}
+
+.bugz-ticket-icon-locked:before {
+    content: "\1F512";
+}
+
+.bugz-ticket-icon-locked {
+    width: 22px;
+    height: 22px;
+    color: #111;
+    font-size: small;
+    text-align: center;
+    line-height: 1.5;
+}
+
+.bugz-search-form {
+    padding-bottom: 1rem;
+}
+
+.bugz-ticket-labels {
+    display: inline;
+}
+
+.bugz-label {
+    height: 0;
+    display: inline-block;
+}
+
+.bugz-label-link {
+    display: inline-block;
+    word-break: keep-all;
+    white-space: nowrap;
+    text-decoration: none;
+    border-radius: 2px;
+    font-size: 12px;
+    padding: .15rem 4px;
+    height: 20px;
+    box-sizing: border-box;
+    box-shadow: inset 0 -1px 0 rgba(27, 31, 35, .12);
+    font-weight: normal;
+}
+
+.bugz-update.bugz-update-open:before {
+    content: '\2713';
+}
+
+.bugz-update.bugz-update-locked:before {
+    content: '\1f512';
+}
+
+.bugz-update.bugz-update-labels:before {
+    content: '\1f3f7';
+}
+
+.bugz-update.bugz-update-blocked_by:before {
+    content: '\21af';
+}
+
+.bugz-update.bugz-update-assignee:before {
+    content: '\1f464';
+}
+
+.bugz-update.bugz-update-title:before {
+    content: '\1f18e';
+}
+
+.bugz-update.bugz-update-dupe_of:before {
+    content: '=';
+}
+
+.bugz-update {
+    position: relative;
+    padding: 22px;
+    padding-left: calc(22px * 2);
+}
+
+.bugz-update:before {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    position: absolute;
+    left: 4px;
+    margin-top: -7px;
+    font-size: 16px;
+    background-color: #e1e4e8;
+    text-align: center;
+    border-radius: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.bugz-update+.bugz-update {
+    padding-top: 0;
+}
+
+.bugz-comment {
+    position: relative;
+    border: 1px solid #e1e4e8;
+    border-radius: 3px;
+}
+
+.bugz-comment+.bugz-comment {
+    margin-top: 22px;
+}
+
+.bugz-comment-header {
+    position: relative;
+    border-bottom: 1px solid #e1e4e8;
+    background-color: #f6f8fa;
+    padding: 8px;
+    padding-left: calc(22px + 22px);
+    color: #6a737d;
+}
+
+.bugz-comment-header:before {
+    display: flex;
+    position: absolute;
+    content: '”';
+    color: #111;
+    font-size: 2rem;
+    width: 32px;
+    height: 100%;
+    left: 4px;
+    justify-content: center;
+}
+
+.bugz-comment-body {
+    padding: 15px;
+}
+
+.bugz-author {
+    font-weight: bold;
+    color: black;
+}
+
+.bugz-markup > :first-child {
+    margin-top: 0 !important;
+}
+
+.bugz-markup > :last-child {
+    margin-bottom: 0 !important;
+}
+
+.bugz-update-title .bugz-old-value {
+    text-decoration: line-through;
+}
+
+.bugz-ticket-creation {
+    padding: 0 0 18px;
+}
+
+.bugz-ticket-badge {
+    border-radius: 3px;
+    color: white;
+    padding: 4px 8px;
+    white-space: nowrap;
+    text-align: center;
+    font-weight: 600;
+    line-height: 20px;
+    margin-right: 8px;
+}
+
+.bugz-ticket-badge-open {
+    background-color: #2cbe4e;
+}
+
+.bugz-ticket-badge-closed{
+    background-color: #cb2431;
+}
+
+.bugz-ticket-link, .bugz-user-link {
+    font-weight: 600;
+}
+
+.bugz-empty-placeholder {
+    color: #6a737d;
+}

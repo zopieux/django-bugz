@@ -58,10 +58,17 @@ class DetailTicketView(FormMixin, DetailView):
     model = models.Ticket
     form_class = forms.CommentForm
 
+    def get_queryset(self):
+        return (super().get_queryset()
+                .prefetch_related('labels', 'blocked_by')
+                .select_related('assignee', 'dupe_of'))
+
     def get_context_data(self, **kwargs):
         log = list(models.build_ticket_log(self.object))[::-1]
         return {
             **super().get_context_data(**kwargs),
+            # Minus one because the description is a fake comment.
+            "comment_count": sum(1 for l in log if l.field == "comment") - 1,
             "log": log,
         }
 
@@ -76,10 +83,11 @@ class CommentTicketView(PermissionRequiredMixin, BaseUpdateView):
         return FormMixin.get_form_kwargs(self)
 
     def form_valid(self, form):
-        models.save_ticket_comment(
+        comment = models.save_ticket_comment(
             self.object, self.request.user, form.cleaned_data["comment"]
         )
-        return redirect(self.object.get_absolute_url())
+        url = self.object.get_absolute_url()
+        return redirect(f"{url}#{models.get_comment_hash(comment)}")
 
     def form_invalid(self, form):
         return JsonResponse("no", safe=False)

@@ -45,6 +45,13 @@ class Label(models.Model):
     description = models.TextField(blank=True)
     color = ColorField(default="#ffffff", max_length=9)
 
+    @property
+    def text_color(self):
+        c = parse_color(self.color) >> 8
+        blue, green, red = c & 0xff, (c >> 8) & 0xff, (c >> 16) & 0xff
+        light = (red * 0.299 + green * 0.587 + blue * 0.114) > 186
+        return 'black' if light else 'white'
+
     class Meta:
         ordering = ("name",)
 
@@ -177,6 +184,10 @@ class Event(NamedTuple):
     new_value: Any = None
 
 
+def get_comment_hash(update: TicketUpdate):
+    return f"comment-{update.pk}"
+
+
 def build_ticket_log(ticket: Ticket):
     """Generate Event tuples for each comment and field update for this ticket.
 
@@ -259,7 +270,7 @@ def build_ticket_log(ticket: Ticket):
         # Just a comment.
         if old_value is None:
             yield Event(
-                id=f"comment-{update.pk}",
+                id=get_comment_hash(update),
                 authored_by=update.authored_by,
                 authored_on=update.authored_on,
                 field="comment",
@@ -293,3 +304,12 @@ def build_ticket_log(ticket: Ticket):
                 )
 
             current_state[field] = old
+
+    # Fake comment for the description itself.
+    yield Event(
+        id=f"ticket-{ticket.pk}",
+        authored_by=ticket.authored_by,
+        authored_on=ticket.created_on,
+        field="comment",
+        new_value=ticket.description,
+    )

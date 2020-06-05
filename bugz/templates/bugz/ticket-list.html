@@ -5,27 +5,35 @@
 {% block content %}
     <h1>Tickets</h1>
 
-    <form method="get">
+    <form method="get" class="bugz-search-form">
         {{ form.q }}
         <button type="submit">Search</button>
     </form>
 
-    <div class="ticket-list">
+    <div class="bugz-ticket-list">
     {% for ticket in tickets %}
-        <div class="ticket">
+        <div class="bugz-ticket">
             {# Insert multi-select checkbox here. #}
-            <div class="ticket-status">{# Insert open/closed icon here. #}</div>
-            <div class="ticket-title">
-                <a href="{% url 'bugz:ticket' ticket.pk %}">{{ ticket.title }}</a>
-                <div class="ticket-info">
-                    #{{ ticket.id }} opened {{ ticket.created_on|date:"SHORT_DATETIME_FORMAT" }} by {% show_author ticket.authored_by %}
+            <div class="bugz-ticket-status bugz-ticket-status-{% if ticket.open %}open{% else %}closed{% endif %}">
+                <div class="bugz-ticket-status-icon-{% if ticket.open %}open{% else %}closed{% endif %}"></div>
+            </div>
+            <div class="bugz-ticket-title">
+                <a href="{% url 'bugz:ticket' ticket.pk %}" class="bugz-ticket-title-link">{{ ticket.title }}</a>
+                {% show_labels ticket.labels.all %}
+                <div class="bugz-ticket-info">
+                    #{{ ticket.id }} opened {{ ticket.authored_on|date:"SHORT_DATETIME_FORMAT" }} by {% show_author ticket.authored_by %}
                 </div>
             </div>
-            <div class="ticket-meta">
-                <div class="ticket-assignee">
-                    {% with assignee=ticket.assignee %}{% include "bugz/stub-assignee.html" %}{% endwith %}
+            <div class="bugz-icket-meta">
+                <div class="bugz-ticket-lock-status">
+                {% if ticket.locked %}
+                    <div class="bugz-ticket-icon-locked" title="This ticket is locked, interactions are limited to staff users"></div>
+                {% endif %}
                 </div>
-                <div class="ticket-stats"></div>
+                <div class="bugz-ticket-assignee">
+                    {% with assignee=ticket.assignee %}{% include "bugz/stub-assignee-icon.html" %}{% endwith %}
+                </div>
+                <div class="bugz-ticket-stats"></div>
             </div>
         </div>
     {% endfor %}
