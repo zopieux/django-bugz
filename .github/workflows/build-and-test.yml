@@ -46,7 +46,6 @@ jobs:
           cd assets
           yarn install
           ./update_assets.sh
-          wc --bytes bugz/static/bugz/bundle.js
 
   lint:
     name: "Lint"
