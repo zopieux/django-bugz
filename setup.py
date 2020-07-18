@@ -15,7 +15,7 @@ setup(
     description="A standalone Django issue tracking app.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    python_requires='>=3.7',
+    python_requires='>=3.8',
     package_data={'bugz': ['static/bugz/*', 'templates/bugz/*']},
     install_requires=[
         "bleach>=3",  # HTML sanitizer
@@ -27,7 +27,6 @@ setup(
         'Environment :: Web Environment',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Framework :: Django',
         'Intended Audience :: Developers',

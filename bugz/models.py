@@ -48,7 +48,7 @@ class Label(models.Model):
     @property
     def text_color(self):
         c = parse_color(self.color) >> 8
-        blue, green, red = c & 0xff, (c >> 8) & 0xff, (c >> 16) & 0xff
+        blue, green, red = c & 0xFF, (c >> 8) & 0xFF, (c >> 16) & 0xFF
         light = (red * 0.299 + green * 0.587 + blue * 0.114) > 186
         return 'black' if light else 'white'
 
@@ -83,10 +83,16 @@ class Ticket(models.Model):
         related_name="assigned_tickets",
     )
     # What tickets are blocking this one.
-    blocked_by = models.ManyToManyField("self", related_name="blocking", blank=True)
+    blocked_by = models.ManyToManyField(
+        "self", related_name="blocking", blank=True
+    )
     # This ticket is a duplicate of another ticket.
     dupe_of = models.ForeignKey(
-        "self", related_name="dupes", null=True, blank=True, on_delete=models.SET_NULL
+        "self",
+        related_name="dupes",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
     )
     # The ticket labels.
     labels = models.ManyToManyField(Label, blank=True)
@@ -102,13 +108,17 @@ class Ticket(models.Model):
 
     def clean(self):
         if self.pk is not None and self.dupe_of_id == self.pk:
-            raise ValidationError({"dupe_of": "A ticket cannot duplicate itself."})
+            raise ValidationError(
+                {"dupe_of": "A ticket cannot duplicate itself."}
+            )
         # TODO: validate that blocked_by does not contain itself.
         # Nontrivial, Django validation of M2M fields is basically nonexistent.
 
 
 class TicketUpdate(models.Model):
-    ticket = models.ForeignKey(Ticket, related_name="updates", on_delete=models.CASCADE)
+    ticket = models.ForeignKey(
+        Ticket, related_name="updates", on_delete=models.CASCADE
+    )
     authored_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
@@ -130,7 +140,9 @@ def save_ticket_comment(ticket: Ticket, authored_by, comment: str):
     )
 
 
-def save_ticket_update(ticket: Ticket, authored_by, blocked_by=None, labels=None):
+def save_ticket_update(
+    ticket: Ticket, authored_by, blocked_by=None, labels=None
+):
     old_ticket = Ticket.objects.get(pk=ticket.pk)
     now = timezone.now()
     updates = {}
@@ -157,7 +169,9 @@ def save_ticket_update(ticket: Ticket, authored_by, blocked_by=None, labels=None
             compare_and_store(field, lambda e: e)
 
     for field in Ticket._meta.many_to_many:
-        compare_and_store(field, lambda e: list(e.values_list("pk", flat=True)))
+        compare_and_store(
+            field, lambda e: list(e.values_list("pk", flat=True))
+        )
 
     with transaction.atomic():
         if labels is not None:
@@ -237,7 +251,9 @@ def build_ticket_log(ticket: Ticket):
     ) - {None}
     # And build lookup tables for these.
     users = build_lookup_dict(get_user_model().objects, users)
-    tickets = build_lookup_dict(Ticket.objects.select_related("authored_by"), tickets)
+    tickets = build_lookup_dict(
+        Ticket.objects.select_related("authored_by"), tickets
+    )
     labels = build_lookup_dict(Label.objects, labels)
 
     def emit(old, new, many: bool, lookup=None):
@@ -293,7 +309,9 @@ def build_ticket_log(ticket: Ticket):
                 changes = emit(old, new, many=False)
 
             for old_v, new_v in changes:
-                h = hashlib.md5(repr((field, old_v, new_v)).encode()).hexdigest()[:4]
+                h = hashlib.md5(
+                    repr((field, old_v, new_v)).encode()
+                ).hexdigest()[:4]
                 yield Event(
                     id=f"event-{update.pk}-{h}",
                     authored_by=update.authored_by,
