@@ -1,0 +1,2 @@
+-e ..  # django-bugz from the parent directory
+-r ../requirements-dev.txt
