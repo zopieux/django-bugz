@@ -3,6 +3,6 @@ __pycache__/
 dist/
 *.sqlite3
 
-js/node_modules/
-js/build/
-js/yarn*log
+assets/node_modules/
+assets/build/
+assets/yarn*log
