@@ -34,12 +34,12 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "example_project.urls"
+ROOT_URLCONF = "demoapp.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR, "example_project", "templates")],
+        "DIRS": [os.path.join(BASE_DIR, "demoapp", "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -52,7 +52,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = "example_project.wsgi.application"
+WSGI_APPLICATION = "demoapp.wsgi.application"
 
 DATABASES = {
     "default": {
@@ -73,6 +73,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'example_project', 'static')]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'demoapp', 'static')]
 
 STATIC_URL = "/static/"
