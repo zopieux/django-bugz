@@ -14,7 +14,9 @@ class BugzTestCase(TestCase):
         self.u1 = get_user_model().objects.create(username="zopieux")
         self.u2 = get_user_model().objects.create(username="seirl")
         self.t1 = models.Ticket.objects.create(
-            authored_by=self.u1, title="test title", description="the description"
+            authored_by=self.u1,
+            title="test title",
+            description="the description",
         )
         self.t2 = models.Ticket.objects.create(
             authored_by=self.u2, title="big issue", description="onoes"
@@ -28,7 +30,12 @@ class BugzTestCase(TestCase):
         )
         self.assertDictEqual(
             json.loads(update.old_value),
-            {"title": "test title", "assignee": None, "labels": [], "blocked_by": []},
+            {
+                "title": "test title",
+                "assignee": None,
+                "labels": [],
+                "blocked_by": [],
+            },
         )
         self.t1.refresh_from_db()
         self.assertSetEqual(set(self.t1.labels.all()), {self.l1, self.l2})

@@ -38,7 +38,9 @@ def markdown(md: str):
 @register.simple_tag
 def search_url(*kv):
     if len(kv) % 2 != 0:
-        raise TemplateSyntaxError("search_url takes an even number of arguments")
+        raise TemplateSyntaxError(
+            "search_url takes an even number of arguments"
+        )
     q = " ".join(f"{key}:{value}" for key, value in zip(kv[::2], kv[1::2]))
     return reverse("bugz:home") + "?" + urllib.parse.urlencode({"q": q})
 

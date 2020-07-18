@@ -59,9 +59,12 @@ class DetailTicketView(FormMixin, DetailView):
     form_class = forms.CommentForm
 
     def get_queryset(self):
-        return (super().get_queryset()
-                .prefetch_related('labels', 'blocked_by')
-                .select_related('assignee', 'dupe_of'))
+        return (
+            super()
+            .get_queryset()
+            .prefetch_related('labels', 'blocked_by')
+            .select_related('assignee', 'dupe_of')
+        )
 
     def get_context_data(self, **kwargs):
         log = list(models.build_ticket_log(self.object))[::-1]
