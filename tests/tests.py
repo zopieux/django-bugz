@@ -62,57 +62,63 @@ class BugzTestCase(TestCase):
         models.save_ticket_update(self.t1, self.u1, blocked_by=[self.t1])
 
         log = list(models.build_ticket_log(self.t1))[::-1]
-        self.assertEqual(len(log), 10)
+        self.assertEqual(len(log), 11)
 
-        self.assertEqual(log[0].field, "title")
+        # Fake event for the description
+        self.assertEqual(log[0].field, "comment")
         self.assertEqual(log[0].authored_by, self.u1)
-        self.assertEqual(log[0].old_value, "test title")
-        self.assertEqual(log[0].new_value, "title v2")
+        self.assertEqual(log[0].old_value, None)
+        self.assertEqual(log[0].new_value, "the description")
 
-        self.assertEqual(log[1].field, "open")
-        self.assertEqual(log[1].old_value, True)
-        self.assertEqual(log[1].new_value, False)
+        self.assertEqual(log[1].field, "title")
+        self.assertEqual(log[1].authored_by, self.u1)
+        self.assertEqual(log[1].old_value, "test title")
+        self.assertEqual(log[1].new_value, "title v2")
 
-        self.assertEqual(log[2].field, "assignee")
-        self.assertEqual(log[2].old_value, None)
-        self.assertEqual(log[2].new_value, self.u2)
+        self.assertEqual(log[2].field, "open")
+        self.assertEqual(log[2].old_value, True)
+        self.assertEqual(log[2].new_value, False)
 
-        self.assertEqual(log[3].field, "comment")
-        self.assertEqual(log[3].authored_by, self.u2)
+        self.assertEqual(log[3].field, "assignee")
         self.assertEqual(log[3].old_value, None)
-        self.assertEqual(log[3].new_value, "hello world")
+        self.assertEqual(log[3].new_value, self.u2)
 
-        self.assertEqual(log[4].field, "assignee")
-        self.assertEqual(log[4].old_value, self.u2)
-        self.assertEqual(log[4].new_value, None)
+        self.assertEqual(log[4].field, "comment")
+        self.assertEqual(log[4].authored_by, self.u2)
+        self.assertEqual(log[4].old_value, None)
+        self.assertEqual(log[4].new_value, "hello world")
 
-        self.assertEqual(log[5].field, "labels")
-        self.assertEqual(log[5].old_value, None)
-        self.assertEqual(log[5].new_value, {self.l1, self.l2})
+        self.assertEqual(log[5].field, "assignee")
+        self.assertEqual(log[5].old_value, self.u2)
+        self.assertEqual(log[5].new_value, None)
 
-        self.assertEqual(log[6].field, "blocked_by")
+        self.assertEqual(log[6].field, "labels")
         self.assertEqual(log[6].old_value, None)
-        self.assertEqual(log[6].new_value, {self.t2})
+        self.assertEqual(log[6].new_value, {self.l1, self.l2})
 
-        self.assertEqual(log[7].field, "labels")
-        self.assertEqual(log[7].old_value, {self.l1})
-        self.assertEqual(log[7].new_value, None)
+        self.assertEqual(log[7].field, "blocked_by")
+        self.assertEqual(log[7].old_value, None)
+        self.assertEqual(log[7].new_value, {self.t2})
 
-        self.assertEqual(log[8].field, "blocked_by")
-        self.assertEqual(log[8].old_value, None)
-        self.assertEqual(log[8].new_value, {self.t1})
+        self.assertEqual(log[8].field, "labels")
+        self.assertEqual(log[8].old_value, {self.l1})
+        self.assertEqual(log[8].new_value, None)
 
         self.assertEqual(log[9].field, "blocked_by")
-        self.assertEqual(log[9].old_value, {self.t2})
-        self.assertEqual(log[9].new_value, None)
+        self.assertEqual(log[9].old_value, None)
+        self.assertEqual(log[9].new_value, {self.t1})
+
+        self.assertEqual(log[10].field, "blocked_by")
+        self.assertEqual(log[10].old_value, {self.t2})
+        self.assertEqual(log[10].new_value, None)
 
         # Delete a referenced label and check it's handled properly.
         self.l1.delete()
         log = list(models.build_ticket_log(self.t1))[::-1]
-        self.assertEqual(log[5].field, "labels")
-        self.assertEqual(log[5].old_value, None)
+        self.assertEqual(log[6].field, "labels")
+        self.assertEqual(log[6].old_value, None)
         # No l1 anymore.
-        self.assertEqual(log[5].new_value, {self.l2})
+        self.assertEqual(log[6].new_value, {self.l2})
         # Event #7 for label was silenced since the label doesn't exist.
-        self.assertEqual(len(log), 9)
-        self.assertEqual(log[7].field, "blocked_by")
+        self.assertEqual(len(log), 10)
+        self.assertEqual(log[8].field, "blocked_by")
