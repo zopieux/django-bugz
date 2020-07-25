@@ -22,6 +22,7 @@ setup(
         "rules>=2",  # Permission management
         "django>=2",
         "markdown>=3",
+        "django-bootstrap-form>=3"
     ],
     classifiers=[
         'Environment :: Web Environment',

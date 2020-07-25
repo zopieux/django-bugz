@@ -1,35 +1,52 @@
-{% load static %}
+{% load i18n static %}
+{% get_current_language as LANGUAGE_CODE %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}{% endblock %}</title>
-    <style>
-        body {
-            font-family: sans-serif;
-        }
-    </style>
-    <link rel="stylesheet" href="{% static 'bugz/sakura.css' %}">
-    {% block head %}{% endblock %}
+    <title>{% block title %}django-bugz{% endblock %}</title>
+
+    <link rel="stylesheet" href="{% static 'bugz/vendor/bootstrap.min.css' %}"/>
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
-
-{% block logged-user %}
-{% if user.is_authenticated %}
-    <p>Logged in as <strong>{{ user }}</strong>.</p>
-{% endif %}
-{% endblock %}
-
-{% block navigation %}
-<nav>
-    <a href="{% url 'bugz:home' %}">Ticket list</a> ⋅
-    <a href="{% url 'bugz:new' %}">New ticket</a>
-</nav>
-{% endblock %}
+  <div class="navbar navbar-default">
+    <div class="container">
+      <div class="navbar-header">
+        <div class="navbar-brand">
+          <a href="https://github.com/zopieux/django-bugz">
+            django-bugz
+          </a>
+        </div>
+      </div>
+      <div class="navbar-collapse collapse">
+        <ul class="nav navbar-nav">
+          {% block navigation %}
+          <li><a href="{% url 'bugz:home' %}">Ticket list</a></li>
+          <li><a href="{% url 'bugz:new' %}">New ticket</a></li>
+          {% endblock %}
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          {% if user.is_authenticated %}
+            <li><p class="navbar-text">Logged in as <strong>{{ user }}</strong></p></li>
+            <li><a href="{% url 'logout' %}">Logout</a></li>
+          {% else %}
+            <li><a href="{% url 'login' %}">Login</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="container">
 
 {% block content %}
 {% endblock %}
 
 {% block foot %}{% endblock %}
+
+  </div>
+  <script src="{% static 'bugz/vendor/jquery.min.js' %}"></script>
+  <script src="{% static 'bugz/vendor/bootstrap.min.js' %}"></script>
+{% block extra_script %}{% endblock %}
 </body>
 </html>

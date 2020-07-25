@@ -19,6 +19,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "debug_toolbar",
+    "bootstrapform",
     "bugz",
     "rules.apps.AutodiscoverRulesConfig",
 ]
@@ -76,3 +77,6 @@ USE_TZ = True
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'demoapp', 'static')]
 
 STATIC_URL = "/static/"
+
+LOGIN_REDIRECT_URL = "/"
+LOGOUT_REDIRECT_URL = "/"
